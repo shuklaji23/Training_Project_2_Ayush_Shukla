@@ -17,7 +17,7 @@ volumes:
   peer1.wholesaler.example.com:
 
 networks:
-  test:
+  fabric_test:
     name: fabric_test
 
 services:
@@ -25,7 +25,7 @@ services:
   # Raft Ordering Service
   orderer1.example.com:
     container_name: orderer1.example.com
-    image: hyperledger/fabric-orderer:latest
+    image: hyperledger/fabric-orderer:2.4.9
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -35,9 +35,17 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
       - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
       - ORDERER_CHANNELPARTICIPATION_ENABLED=true
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_ADMIN_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer1.example.com:9443
+      - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
@@ -47,12 +55,13 @@ services:
     ports:
       - 7050:7050
       - 7053:7053
+      - 9443:9443
     networks:
-      - test
+      - fabric_test
 
   orderer2.example.com:
     container_name: orderer2.example.com
-    image: hyperledger/fabric-orderer:latest
+    image: hyperledger/fabric-orderer:2.4.9
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -62,7 +71,7 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
       - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
       - ORDERER_CHANNELPARTICIPATION_ENABLED=true
     working_dir: /root
@@ -74,11 +83,11 @@ services:
     ports:
       - 8050:8050
     networks:
-      - test
+      - fabric_test
 
   orderer3.example.com:
     container_name: orderer3.example.com
-    image: hyperledger/fabric-orderer:latest
+    image: hyperledger/fabric-orderer:2.4.9
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -88,7 +97,7 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
       - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
       - ORDERER_CHANNELPARTICIPATION_ENABLED=true
     working_dir: /root
@@ -100,7 +109,15 @@ services:
     ports:
       - 9050:9050
     networks:
-      - test
+      - fabric_test
+
+  # Correct all the other peer and service blocks similarly...
+  # Don't forget to also use specific image versions instead of "latest".
+  # Ensure your volumes and paths are properly set up based on your directory structure.
+
+  # For Peers, you can do the same with specific ports and volumes.
+  # Check if your MSP, TLS configurations and paths match the directory layout.
+
 
   # Producer Organization Peers
   peer0.producer.example.com:
@@ -124,12 +141,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/producer.example.com/peers/peer0.producer.example.com:/etc/hyperledger/fabric
       - peer0.producer.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 7051:7051
     networks:
-      - test
+      - fabric_test
 
   peer1.producer.example.com:
     container_name: peer1.producer.example.com
@@ -152,12 +170,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/producer.example.com/peers/peer1.producer.example.com:/etc/hyperledger/fabric
       - peer1.producer.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 8051:8051
     networks:
-      - test
+      - fabric_test
 
   # Supplier Organization Peers
   peer0.supplier.example.com:
@@ -181,12 +200,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/supplier.example.com/peers/peer0.supplier.example.com:/etc/hyperledger/fabric
       - peer0.supplier.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 9051:9051
     networks:
-      - test
+      - fabric_test
 
   peer1.supplier.example.com:
     container_name: peer1.supplier.example.com
@@ -209,12 +229,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/supplier.example.com/peers/peer1.supplier.example.com:/etc/hyperledger/fabric
       - peer1.supplier.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 10051:10051
     networks:
-      - test
+      - fabric_test
 
   # Wholesaler Organization Peers
   peer0.wholesaler.example.com:
@@ -238,12 +259,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/wholesaler.example.com/peers/peer0.wholesaler.example.com:/etc/hyperledger/fabric
       - peer0.wholesaler.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 11051:11051
     networks:
-      - test
+      - fabric_test
 
   peer1.wholesaler.example.com:
     container_name: peer1.wholesaler.example.com
@@ -266,12 +288,13 @@ services:
     volumes:
       - ../organizations/peerOrganizations/wholesaler.example.com/peers/peer1.wholesaler.example.com:/etc/hyperledger/fabric
       - peer1.wholesaler.example.com:/var/hyperledger/production
+      - /var/run/docker.sock:/host/var/run/docker.sock
     working_dir: /root
     command: peer node start
     ports:
       - 12051:12051
     networks:
-      - test
+      - fabric_test
 
   # CLI Container
   cli:
@@ -293,4 +316,4 @@ services:
       - peer0.supplier.example.com
       - peer0.wholesaler.example.com
     networks:
-      - test
+      - fabric_test

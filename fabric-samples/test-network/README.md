@@ -1,48 +1,46 @@
-# Running the test network
+# Setting Up the Test Network
 
-You can use the `./network.sh` script to stand up a simple Fabric test network. The test network has two peer organizations with one peer each and a single node raft ordering service. You can also use the `./network.sh` script to create channels and deploy chaincode. For more information, see [Using the Fabric test network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html). The test network is being introduced in Fabric v2.0 as the long term replacement for the `first-network` sample.
+You can easily start a basic Fabric test network using the `./network.sh` script. This network includes two organizations, each with one peer, and a single-node Raft ordering service. The same script can also help you create channels and deploy chaincode. For more details, check out the [Using the Fabric Test Network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html) guide. This test network replaces the older `first-network` example starting from Fabric v2.0.
 
-Before you can deploy the test network, you need to follow the instructions to [Install the Samples, Binaries and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Hyperledger Fabric documentation.
+Before you start the test network, make sure to follow the instructions in the [Install the Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) section of the Hyperledger Fabric documentation.
 
-## Using the Peer commands
+## Using Peer Commands
 
-The `setOrgEnv.sh` script can be used to set up the environment variables for the organizations, this will help to be able to use the `peer` commands directly.
+To set up the environment for your organizations, use the `setOrgEnv.sh` script. This makes it easier to run `peer` commands directly.
 
-First, ensure that the peer binaries are on your path, and the Fabric Config path is set assuming that you're in the `test-network` directory.
+First, add the peer binaries to your PATH and set the Fabric configuration path. Make sure you're in the `test-network` directory:
 
 ```bash
- export PATH=$PATH:$(realpath ../bin)
- export FABRIC_CFG_PATH=$(realpath ../config)
+export PATH=$PATH:$(realpath ../bin)
+export FABRIC_CFG_PATH=$(realpath ../config)
 ```
 
-You can then set up the environment variables for each organization. The `./setOrgEnv.sh` command is designed to be run as follows.
+Now, you can set the environment variables for each organization by running:
 
 ```bash
 export $(./setOrgEnv.sh Org2 | xargs)
 ```
 
-(Note bash v4 is required for the scripts.)
+(Note: You need Bash version 4 or higher for these scripts.)
 
-You will now be able to run the `peer` commands in the context of Org2. If a different command prompt, you can run the same command with Org1 instead.
-The `setOrgEnv` script outputs a series of `<name>=<value>` strings. These can then be fed into the export command for your current shell.
+Now you can run `peer` commands for Org2. If you want to switch to Org1, just use the same command for that organization.
 
-## Chaincode-as-a-service
+The `setOrgEnv` script generates a list of `<name>=<value>` strings that you can export to your shell.
 
-To learn more about how to use the improvements to the Chaincode-as-a-service please see this [tutorial](./test-network/../CHAINCODE_AS_A_SERVICE_TUTORIAL.md). It is expected that this will move to augment the tutorial in the [Hyperledger Fabric ReadTheDocs](https://hyperledger-fabric.readthedocs.io/en/release-2.4/cc_service.html)
+## Chaincode as a Service
 
+To learn about the updates in Chaincode-as-a-Service, take a look at this [tutorial](./test-network/../CHAINCODE_AS_A_SERVICE_TUTORIAL.md). This content is expected to enhance the tutorials in the [Hyperledger Fabric ReadTheDocs](https://hyperledger-fabric.readthedocs.io/en/release-2.4/cc_service.html).
 
-## Podman
+## Using Podman
 
-*Note - podman support should be considered experimental but the following has been reported to work with podman 4.1.1 on Mac. If you wish to use podman a LinuxVM is recommended.*
+*Note: Podman support is still experimental. It's best to use a Linux VM for this.*
 
-Fabric's `install-fabric.sh` script has been enhanced to support using `podman` to pull down images and tag them rather than docker. The images are the same, just pulled differently. Simply specify the 'podman' argument when running the `install-fabric.sh` script. 
+The `install-fabric.sh` script now supports using Podman to manage images instead of Docker. To use Podman, just run the script with the 'podman' argument.
 
-Similarly, the `network.sh` script has been enhanced so that it can use `podman` and `podman-compose` instead of docker. Just set the environment variable `CONTAINER_CLI` to `podman` before running the `network.sh` script:
+The `network.sh` script has also been updated to work with Podman and `podman-compose`. Before running the script, set the `CONTAINER_CLI` environment variable to `podman`:
 
 ```bash
 CONTAINER_CLI=podman ./network.sh up
-````
+```
 
-As there is no Docker-Daemon when using podman, only the `./network.sh deployCCAAS` command will work. Following the Chaincode-as-a-service Tutorial above should work. 
-
-
+Since Podman does not use a Docker daemon, only the `./network.sh deployCCAAS` command will work as intended. You can follow the Chaincode-as-a-Service tutorial mentioned earlier for guidance.
